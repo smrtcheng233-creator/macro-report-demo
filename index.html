@@ -3,38 +3,431 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI战略报告生成工作台</title>
+  <title>战略报告资料准备工具</title>
+
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-      background: #f6f7fb;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+        "Microsoft YaHei", Arial, sans-serif;
+      background: #f6f8fb;
       color: #1f2937;
     }
 
-    header {
-      background: #0f172a;
-      color: white;
-      padding: 28px 8%;
-    }
-
-    header h1 {
-      margin: 0 0 8px;
-      font-size: 28px;
-    }
-
-    header p {
-      margin: 0;
-      color: #cbd5e1;
-      font-size: 15px;
-    }
-
-    main {
-      width: 84%;
+    .container {
       max-width: 1200px;
-      margin: 28px auto;
+      margin: 0 auto;
+      padding: 36px 24px 60px;
     }
 
+    h1 {
+      margin: 0 0 12px;
+      font-size: 34px;
+      color: #111827;
+    }
+
+    .subtitle {
+      margin-bottom: 32px;
+      font-size: 16px;
+      color: #6b7280;
+      line-height: 1.7;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 18px;
+      padding: 28px;
+      margin-bottom: 26px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    .step-title {
+      margin: 0 0 24px;
+      font-size: 26px;
+      color: #111827;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 16px;
+      color: #374151;
+    }
+
+    input {
+      width: 100%;
+      height: 52px;
+      padding: 0 16px;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      font-size: 17px;
+      outline: none;
+      background: #fff;
+    }
+
+    input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 14px 24px;
+      font-size: 17px;
+      cursor: pointer;
+      color: #ffffff;
+      background: #2563eb;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .hint {
+      margin-top: 14px;
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.7;
+    }
+
+    .dimension-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    .dimension-box {
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 20px;
+      background: #ffffff;
+    }
+
+    .dimension-box h3 {
+      margin: 0 0 10px;
+      font-size: 20px;
+      color: #111827;
+    }
+
+    .desc {
+      margin: 0 0 14px;
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.6;
+    }
+
+    .query-box {
+      margin-bottom: 12px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: #f3f4f6;
+      color: #374151;
+      font-size: 14px;
+      line-height: 1.6;
+      word-break: break-all;
+    }
+
+    .links {
+      margin-bottom: 14px;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .links a {
+      display: inline-block;
+      margin-right: 12px;
+      margin-bottom: 6px;
+      color: #2563eb;
+      text-decoration: none;
+    }
+
+    .links a:hover {
+      text-decoration: underline;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 170px;
+      padding: 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      resize: vertical;
+      font-size: 15px;
+      line-height: 1.7;
+      outline: none;
+      font-family: inherit;
+    }
+
+    textarea:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .prompt-section {
+      margin-top: 20px;
+    }
+
+    .prompt-box {
+      white-space: pre-wrap;
+      padding: 18px;
+      border-radius: 14px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      font-size: 15px;
+      line-height: 1.8;
+      color: #374151;
+    }
+
+    .copy-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .secondary-button {
+      background: #111827;
+    }
+
+    .secondary-button:hover {
+      background: #030712;
+    }
+
+    .message {
+      margin-top: 12px;
+      color: #2563eb;
+      font-size: 14px;
+      display: none;
+    }
+
+    @media (max-width: 800px) {
+      .form-grid,
+      .dimension-grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+
+      .step-title {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>战略报告资料准备工具</h1>
+    <div class="subtitle">
+      输入研究主体和研究时间后，系统会自动生成宏观、行业、区域、监管四个维度的检索链接。你可以打开链接查找资料，并将文章 URL 和原文粘贴到对应资料框中。
+    </div>
+
+    <div class="card">
+      <h2 class="step-title">Step 1：填写基础信息</h2>
+
+      <div class="form-grid">
+        <div>
+          <label for="targetEntity">研究主体</label>
+          <input id="targetEntity" type="text" placeholder="例如：赣州银行" />
+        </div>
+
+        <div>
+          <label for="researchYear">研究时间</label>
+          <input id="researchYear" type="text" placeholder="例如：2026" />
+        </div>
+      </div>
+
+      <button onclick="generateSearchLinks()">生成四维检索链接</button>
+
+      <div class="hint">
+        建议优先选择政府官网、央行/金监总官网、统计局、券商研报、权威媒体、上市银行年报等来源。
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="step-title">Step 2：收集四维资料</h2>
+
+      <div class="dimension-grid">
+        <div class="dimension-box">
+          <h3>宏观资料</h3>
+          <p class="desc">关注宏观经济、金融周期、利率环境、消费投资、财政货币政策等。</p>
+          <div id="macroQuery" class="query-box">填写基础信息后自动生成检索词</div>
+          <div id="macroLinks" class="links"></div>
+          <textarea id="macroText" placeholder="请粘贴宏观相关文章 URL 和原文内容"></textarea>
+        </div>
+
+        <div class="dimension-box">
+          <h3>行业资料</h3>
+          <p class="desc">关注银行业趋势、息差、资产质量、零售转型、财富管理、数字化等。</p>
+          <div id="industryQuery" class="query-box">填写基础信息后自动生成检索词</div>
+          <div id="industryLinks" class="links"></div>
+          <textarea id="industryText" placeholder="请粘贴行业相关文章 URL 和原文内容"></textarea>
+        </div>
+
+        <div class="dimension-box">
+          <h3>区域资料</h3>
+          <p class="desc">关注研究主体所在地区的经济规划、产业结构、重点项目、区域战略等。</p>
+          <div id="regionalQuery" class="query-box">填写基础信息后自动生成检索词</div>
+          <div id="regionalLinks" class="links"></div>
+          <textarea id="regionalText" placeholder="请粘贴区域相关文章 URL 和原文内容"></textarea>
+        </div>
+
+        <div class="dimension-box">
+          <h3>监管资料</h3>
+          <p class="desc">关注金融监管、资本约束、风险防控、普惠金融、绿色金融、科技金融等。</p>
+          <div id="regulatoryQuery" class="query-box">填写基础信息后自动生成检索词</div>
+          <div id="regulatoryLinks" class="links"></div>
+          <textarea id="regulatoryText" placeholder="请粘贴监管相关文章 URL 和原文内容"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="step-title">Step 3：AI 报告生成提示词</h2>
+
+      <div id="promptBox" class="prompt-box">填写资料后，这里会自动生成可复制给 AI 的提示词。</div>
+
+      <div class="copy-row">
+        <button class="secondary-button" onclick="generatePrompt()">生成提示词</button>
+        <button onclick="copyPrompt()">复制提示词</button>
+      </div>
+
+      <div id="copyMessage" class="message">已复制到剪贴板</div>
+    </div>
+  </div>
+
+  <script>
+    function generateSearchLinks() {
+      const targetEntity = document.getElementById("targetEntity").value.trim();
+      const researchYear = document.getElementById("researchYear").value.trim();
+
+      if (!targetEntity || !researchYear) {
+        alert("请先填写研究主体和研究时间");
+        return;
+      }
+
+      const queries = {
+        macro: `${researchYear} 中国 宏观经济 金融形势 商业银行 外部环境 发展趋势`,
+        industry: `${researchYear} 银行业 发展趋势 商业银行 净息差 资产质量 数字化转型 风险管理`,
+        regional: `${researchYear} ${targetEntity} 区域经济 地方产业 政府工作报告 发展规划`,
+        regulatory: `${researchYear} 银行业 监管政策 金融监管 国家金融监督管理总局 中国人民银行 商业银行`
+      };
+
+      setSearchBlock("macro", queries.macro);
+      setSearchBlock("industry", queries.industry);
+      setSearchBlock("regional", queries.regional);
+      setSearchBlock("regulatory", queries.regulatory);
+    }
+
+    function setSearchBlock(type, query) {
+      const encodedQuery = encodeURIComponent(query);
+
+      const baiduUrl = `https://www.baidu.com/s?wd=${encodedQuery}`;
+      const bingUrl = `https://www.bing.com/search?q=${encodedQuery}`;
+      const googleUrl = `https://www.google.com/search?q=${encodedQuery}`;
+
+      document.getElementById(`${type}Query`).innerText = query;
+
+      document.getElementById(`${type}Links`).innerHTML = `
+        <a href="${baiduUrl}" target="_blank">百度搜索</a>
+        <a href="${bingUrl}" target="_blank">Bing 搜索</a>
+        <a href="${googleUrl}" target="_blank">Google 搜索</a>
+      `;
+    }
+
+    function generatePrompt() {
+      const targetEntity = document.getElementById("targetEntity").value.trim();
+      const researchYear = document.getElementById("researchYear").value.trim();
+
+      const macroText = document.getElementById("macroText").value.trim();
+      const industryText = document.getElementById("industryText").value.trim();
+      const regionalText = document.getElementById("regionalText").value.trim();
+      const regulatoryText = document.getElementById("regulatoryText").value.trim();
+
+      if (!targetEntity || !researchYear) {
+        alert("请先填写研究主体和研究时间");
+        return;
+      }
+
+      const prompt = `# 角色设定
+你是国内头部金融机构的战略规划专家，擅长撰写商业银行中长期发展战略规划。请基于我提供的事实资料，为【${targetEntity}】撰写一份面向【${researchYear}】及未来阶段的外部环境分析内容。
+
+# 写作要求
+1. 必须基于我提供的事实资料，不要编造不存在的数据、政策或结论。
+2. 请使用正式、专业、战略规划风格的中文表达。
+3. 内容要有逻辑，不要简单堆砌资料。
+4. 需要从宏观、行业、区域、监管四个维度提炼关键信息。
+5. 每个维度都要写出：外部趋势、对银行的影响、对${targetEntity}的战略启示。
+6. 语言要适合直接放入银行战略规划报告。
+
+# 研究主体
+${targetEntity}
+
+# 研究时间
+${researchYear}
+
+# 宏观资料
+${macroText || "此处暂无资料"}
+
+# 行业资料
+${industryText || "此处暂无资料"}
+
+# 区域资料
+${regionalText || "此处暂无资料"}
+
+# 监管资料
+${regulatoryText || "此处暂无资料"}
+
+# 输出格式
+请按照以下结构输出：
+
+一、宏观形势变化：把握经济周期与金融环境演进趋势
+二、银行业发展趋势：识别行业变局下的增长压力与转型方向
+三、区域战略机遇：衔接地方发展规划与本土金融需求
+四、监管政策导向：校准业务边界与风险管理重点
+五、综合战略启示：形成${targetEntity}未来发展的外部判断
+
+请直接输出完整正文。`;
+
+      document.getElementById("promptBox").innerText = prompt;
+    }
+
+    function copyPrompt() {
+      const promptText = document.getElementById("promptBox").innerText;
+
+      if (!promptText || promptText.includes("填写资料后")) {
+        alert("请先生成提示词");
+        return;
+      }
+
+      navigator.clipboard.writeText(promptText).then(() => {
+        const msg = document.getElementById("copyMessage");
+        msg.style.display = "block";
+
+        setTimeout(() => {
+          msg.style.display = "none";
+        }, 1800);
+      });
+    }
+  </script>
+</body>
+</html>
     section {
       background: white;
       border-radius: 14px;
