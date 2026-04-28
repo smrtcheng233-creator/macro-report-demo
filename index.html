@@ -113,6 +113,18 @@
       font-size: 14px;
     }
 
+    .button:hover {
+      background: #1e293b;
+    }
+
+    .button.primary {
+      background: #1d4ed8;
+    }
+
+    .button.primary:hover {
+      background: #1e40af;
+    }
+
     .output {
       min-height: 220px;
       background: #0f172a;
@@ -132,6 +144,12 @@
       margin-bottom: 12px;
     }
 
+    #fetchStatus {
+      margin-top: 10px;
+      color: #1e3a8a;
+      font-size: 14px;
+    }
+
     @media (max-width: 800px) {
       main {
         width: 92%;
@@ -147,7 +165,7 @@
 <body>
   <header>
     <h1>AI战略报告生成工作台</h1>
-    <p>输入研究主体和研究时间，粘贴四类事实材料，系统自动生成标准GPT提示词。</p>
+    <p>输入研究主体和研究时间，自动抓取四类事实材料，并生成标准GPT提示词。</p>
   </header>
 
   <main>
@@ -160,36 +178,39 @@
         </div>
         <div>
           <label>研究时间</label>
-          <input id="timeHorizon" placeholder="例如：2026">
+          <input id="timeHorizon" placeholder="例如：2026-2030年 / 十五五时期">
         </div>
       </div>
+
+      <button class="button primary" onclick="autoFetchMaterials()">自动抓取四维资料</button>
+      <p id="fetchStatus"></p>
     </section>
 
     <section>
-      <h2>Step 2：粘贴四个维度的事实材料</h2>
+      <h2>Step 2：四个维度的事实材料</h2>
       <div class="hint">
-        先围绕研究主体和研究时间收集宏观、行业、区域、监管四类文章或URL，再分别粘贴到下面四个格子里。
+        填写 Step 1 后点击“自动抓取四维资料”，系统会把宏观、行业、区域、监管四类资料自动填入下方。你也可以手动修改。
       </div>
 
       <div class="grid">
         <div class="card">
           <h3>宏观事实库</h3>
-          <textarea id="macroInput" placeholder="粘贴宏观经济、政策周期、经济形势等文章内容或URL"></textarea>
+          <textarea id="macroInput" placeholder="宏观经济、政策周期、经济形势等文章内容或URL会出现在这里"></textarea>
         </div>
 
         <div class="card">
           <h3>行业事实库</h3>
-          <textarea id="industryInput" placeholder="粘贴银行业趋势、竞争格局、盈利变化等文章内容或URL"></textarea>
+          <textarea id="industryInput" placeholder="银行业趋势、竞争格局、盈利变化等文章内容或URL会出现在这里"></textarea>
         </div>
 
         <div class="card">
           <h3>区域事实库</h3>
-          <textarea id="regionInput" placeholder="粘贴区域经济、地方规划、产业政策等文章内容或URL"></textarea>
+          <textarea id="regionInput" placeholder="区域经济、地方规划、产业政策等文章内容或URL会出现在这里"></textarea>
         </div>
 
         <div class="card">
           <h3>监管事实库</h3>
-          <textarea id="regulationInput" placeholder="粘贴金融监管、合规要求、风险治理等文章内容或URL"></textarea>
+          <textarea id="regulationInput" placeholder="金融监管、合规要求、风险治理等文章内容或URL会出现在这里"></textarea>
         </div>
       </div>
     </section>
@@ -231,10 +252,56 @@
   </main>
 
   <script>
+    const API_URL = "https://macro-report-backend.vercel.app/api/fetch-materials";
+
     function getBasicInfo() {
       const target = document.getElementById("targetEntity").value.trim() || "【请输入研究主体】";
       const time = document.getElementById("timeHorizon").value.trim() || "【请输入研究时间】";
       return { target, time };
+    }
+
+    async function autoFetchMaterials() {
+      const target = document.getElementById("targetEntity").value.trim();
+      const time = document.getElementById("timeHorizon").value.trim();
+      const status = document.getElementById("fetchStatus");
+
+      if (!target || !time) {
+        alert("请先填写研究主体和研究时间");
+        return;
+      }
+
+      status.innerText = "正在抓取四个维度的资料，请稍等...";
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            targetEntity: target,
+            timeHorizon: time
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error("资料抓取失败");
+        }
+
+        const data = await response.json();
+
+        document.getElementById("macroInput").value = data.macro || "";
+        document.getElementById("industryInput").value = data.industry || "";
+        document.getElementById("regionInput").value = data.region || "";
+        document.getElementById("regulationInput").value = data.regulation || "";
+
+        updatePrompts();
+
+        status.innerText = "资料已自动填入四个事实库。请检查内容后复制提示词到GPT。";
+      } catch (error) {
+        console.error(error);
+        status.innerText = "抓取失败：请检查后端接口地址、API服务或浏览器控制台报错。";
+      }
     }
 
     function updatePrompts() {
